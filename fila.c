@@ -4,6 +4,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#define TAM 50
+
 // ---------- ESTRUTURA DO PEDIDO ----------
 typedef struct {
     char nome[20];
@@ -11,31 +13,40 @@ typedef struct {
     int pontos;
 } Pedido;
 
-// ---------- FILA ----------
+// ---------- FILA CIRCULAR ----------
 typedef struct {
-    Pedido fila[50];
+    Pedido fila[TAM];
     int inicio;
     int fim;
+    int tamanho;
 } Fila;
 
 // ---------- FUNÇÕES DA FILA ----------
 void inicializarFila(Fila *f) {
     f->inicio = 0;
     f->fim = 0;
+    f->tamanho = 0;
 }
 
 int filaVazia(Fila *f) {
-    return f->inicio == f->fim;
+    return f->tamanho == 0;
+}
+
+int filaCheia(Fila *f) {
+    return f->tamanho == TAM;
 }
 
 void enqueue(Fila *f, Pedido p) {
+    if (filaCheia(f)) return;
     f->fila[f->fim] = p;
-    f->fim++;
+    f->fim = (f->fim + 1) % TAM;
+    f->tamanho++;
 }
 
 Pedido dequeue(Fila *f) {
     Pedido p = f->fila[f->inicio];
-    f->inicio++;
+    f->inicio = (f->inicio + 1) % TAM;
+    f->tamanho--;
     return p;
 }
 
@@ -65,6 +76,12 @@ Pedido gerarPedido() {
     return p;
 }
 
+// ----------- LIMPAR A TELA -----------
+void limparTela() {
+    sleep(2);
+    system("cls||clear");
+}
+
 // ---------- TELA DE LOAD ----------
 void prepararPedido() {
     printf("Preparando");
@@ -74,16 +91,20 @@ void prepararPedido() {
         sleep(1);
     }
     printf("\n");
+    limparTela();
 }
 
 // ---------- MOSTRAR FILA ----------
 void mostrarFila(Fila *f) {
     printf("\nPedidos na fila:\n");
-    for (int i = f->inicio; i < f->fim; i++) {
+
+    int i = f->inicio;
+    for (int c = 0; c < f->tamanho; c++) {
         printf("- %s (tempo %d | pontos %d)\n",
                f->fila[i].nome,
                f->fila[i].tempo,
                f->fila[i].pontos);
+        i = (i + 1) % TAM;
     }
 }
 
@@ -98,6 +119,8 @@ int main() {
     int pontuacao = 0;
     int numPedidos = 5;
 
+    printf("=== JOGO DA COZINHA ===\n");
+
     // Gerar pedidos iniciais
     for (int i = 0; i < numPedidos; i++) {
         Pedido p = gerarPedido();
@@ -107,13 +130,10 @@ int main() {
 
     // Loop principal
     while (!filaVazia(&cozinha)) {
-        system("cls || clear");
-        
-        printf("=== JOGO DA COZINHA ===\n");
-        
+
         mostrarFila(&cozinha);
 
-        Pedido atual = dequeue(&cozinha);
+        Pedido atual = cozinha.fila[cozinha.inicio];
 
         printf("\nPedido atual: %s\n", atual.nome);
         printf("Tempo: %d | Pontos: %d\n", atual.tempo, atual.pontos);
@@ -125,35 +145,43 @@ int main() {
         printf("Escolha: ");
 
         int opcao;
-        scanf("%d", &opcao);
+        if (scanf("%d", &opcao) != 1) {
+            while (getchar() != '\n');
+            continue;
+        }
 
         if (opcao == 1) {
-            system("cls || clear");
-            
             if (tempoTotal < atual.tempo) {
                 printf("\n❌ Tempo insuficiente! GAME OVER\n");
                 break;
             }
 
+            dequeue(&cozinha);
             prepararPedido();
             tempoTotal -= atual.tempo;
             pontuacao += atual.pontos;
 
             printf("Pedido finalizado! +%d pontos\n", atual.pontos);
-        } else {
-            printf("Pedido pulado!\n");
-            tempoTotal -= 1;
-            enqueue(&cozinha, atual);
-        }
 
-        if (tempoTotal <= 0) {
-            printf("\n❌ Tempo esgotado! GAME OVER\n");
-            break;
+        } else if (opcao == 2) {
+            dequeue(&cozinha);
+            tempoTotal -= 1;
+
+            if (tempoTotal <= 0) {
+                printf("\n❌ Tempo esgotado! GAME OVER\n");
+                break;
+            }
+
+            enqueue(&cozinha, atual);
+            printf("Pedido pulado!\n");
+            limparTela();
         }
     }
 
-    printf("\n🏁 FIM DE JOGO\n");
+    printf("\nFIM DE JOGO\n");
     printf("Pontuacao final: %d\n", pontuacao);
+
+    system("pause");
 
     return 0;
 }
