@@ -2,9 +2,9 @@
 
 ## 1. Introdução
 
-Este trabalho tem como objetivo demonstrar, de forma prática e didática, o uso da **estrutura de dados Fila (Queue)** na linguagem **C**, por meio do desenvolvimento de um jogo simples de gerenciamento de cozinha.
+Este trabalho tem como objetivo demonstrar, de forma prática e didática, o uso da estrutura de dados Fila (Queue) na linguagem C, por meio do desenvolvimento de um jogo simples de gerenciamento de cozinha.
 
-No jogo, pedidos de comida são organizados em uma fila e processados de acordo com a lógica **FIFO (First In, First Out)**, simulando o funcionamento real de uma cozinha.
+No jogo, pedidos de comida são organizados em uma fila e processados de acordo com a lógica FIFO (First In, First Out), simulando o funcionamento real de uma cozinha.
 
 ---
 
@@ -26,16 +26,16 @@ O jogo termina quando:
 
 ## 3. Conceito da Estrutura de Fila
 
-A **fila** é uma estrutura de dados linear que segue o princípio:
+A fila é uma estrutura de dados linear que segue o princípio:
 
- **FIFO – First In, First Out**
+ FIFO – First In, First Out
  O primeiro elemento a entrar é o primeiro a sair.
 
 No contexto do jogo:
 
-* Cada **pedido** é um elemento da fila
-* Novos pedidos entram no **final da fila** (`enqueue`)
-* O pedido a ser tratado é sempre o **primeiro da fila** (`dequeue`)
+* Cada pedido é um elemento da fila
+* Novos pedidos entram no final da fila (`enqueue`)
+* O pedido a ser tratado é sempre o primeiro da fila (`dequeue`)
 
 Essa escolha representa fielmente o funcionamento de pedidos em uma cozinha real.
 
@@ -55,9 +55,9 @@ typedef struct {
 
 Cada pedido possui:
 
-* `nome`: nome da comida
-* `tempo`: tempo necessário para preparo
-* `pontos`: pontuação obtida ao concluir o pedido
+* nome: nome da comida
+* tempo: tempo necessário para preparo
+* pontos: pontuação obtida ao concluir o pedido
 
 ---
 
@@ -73,8 +73,8 @@ typedef struct {
 
 A fila é implementada usando um **vetor estático**, controlado por dois índices:
 
-* `inicio`: posição do primeiro elemento
-* `fim`: posição onde o próximo elemento será inserido
+* inicio: posição do primeiro elemento
+* fim: posição onde o próximo elemento será inserido
 
 ---
 
@@ -86,7 +86,7 @@ A fila é implementada usando um **vetor estático**, controlado por dois índic
 void inicializarFila(Fila *f);
 ```
 
-Inicializa a fila, definindo `inicio` e `fim` como zero.
+Inicializa a fila, definindo inicio e fim como zero.
 
 ---
 
@@ -165,8 +165,8 @@ O jogo funciona em um laço principal:
 2. Retira o pedido da frente da fila
 3. O jogador escolhe:
 
-   * **Preparar o pedido**
-   * **Pular o pedido**, que retorna ao final da fila
+   * Preparar o pedido
+   * Pular o pedido, que retorna ao final da fila
 4. Atualiza tempo e pontuação
 5. Verifica condição de vitória ou derrota
 
@@ -191,7 +191,7 @@ O jogo funciona em um laço principal:
 
 Este projeto demonstra de forma clara e prática:
 
-* O uso da estrutura de dados **Fila**
+* O uso da estrutura de dados Fila
 * Aplicação do conceito FIFO em um problema real
 * Organização de código em C
 * Uso de estruturas, funções e controle de fluxo
