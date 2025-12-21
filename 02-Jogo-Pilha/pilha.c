@@ -165,6 +165,7 @@ int main() {
 
         printf("=== BATALHA ARCANA ===\n");
         printf("Boss: %s\n", boss.nome);
+        printf("Descrição: %s\n", boss.descricao);
         printf("Tentativas restantes: %d\n", tentativas);
         printf("Progresso: %d / 3 magias eficazes\n\n", acertos);
 
@@ -172,6 +173,7 @@ int main() {
         printf("2 - Conjurar magia\n");
         printf("3 - Ver pilha\n");
         printf("4 - Limpar pilha\n");
+        printf("5 - Sair\n");
         printf("Opcao: ");
         scanf("%d", &opcao);
 
@@ -200,6 +202,10 @@ int main() {
                 printf("Pilha limpa!\n");
                 printf("\nPressione ENTER para continuar...");
                 getchar(); getchar();
+                break;
+
+            case 5:
+                return 0;
                 break;
 
             default:
