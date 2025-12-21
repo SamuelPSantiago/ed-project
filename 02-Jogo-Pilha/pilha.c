@@ -135,6 +135,43 @@ int conjurar(Pilha *p, Boss boss, int *acertos) {
     return 0;
 }
 
+// ================= SISTEMA DE DICAS =================
+
+void mostrarTutorial() {
+    printf("\n");
+    printf("================================================\n");
+    printf("|          BEM-VINDO A BATALHA ARCANA          |\n");
+    printf("================================================\n");
+    printf("|                                              |\n");
+    printf("| OBJETIVO: Derrotar o Boss usando magias!     |\n");
+    printf("|                                              |\n");
+    printf("| COMO JOGAR:                                  |\n");
+    printf("| 1. EMPILHE feiticos (Fogo, Agua, Ar, Terra)  |\n");
+    printf("| 2. CONJURE para combinar os 2 do topo        |\n");
+    printf("| 3. Acerte as FRAQUEZAS do boss!              |\n");
+    printf("|                                              |\n");
+    printf("| PILHA - Lembre-se:                           |\n");
+    printf("|   -> Ultimo a entrar = Primeiro a sair       |\n");
+    printf("|   -> Os 2 feiticos do TOPO serao combinados  |\n");
+    printf("|                                              |\n");
+    printf("| DICA: Use a opcao 5 para ver as combinacoes! |\n");
+    printf("================================================\n");
+    printf("Pressione ENTER para comecar...");
+    getchar();
+}
+
+void mostrarTabelaMagias() {
+    printf("\n========== TABELA DE COMBINACOES ==========\n");
+    printf("|  Feitico 1  |  Feitico 2  |    Magia    |\n");
+    printf("|-------------|-------------|-------------|\n");
+    printf("|    Fogo     |      Ar     |   Explosao  |\n");
+    printf("|    Fogo     |     Agua    |    Vapor    |\n");
+    printf("|    Fogo     |    Terra    |     Lava    |\n");
+    printf("|    Agua     |    Terra    |     Raio    |\n");
+    printf("|    Agua     |      Ar     |    Nevoa    |\n");
+    printf("===========================================\n");
+}
+
 // ================= MAIN =================
 
 int main() {
@@ -160,26 +197,34 @@ int main() {
     int acertos = 0;
     int opcao, tipo;
 
+    limparTela();
+    mostrarTutorial();
+
     while (tentativas > 0 && acertos < 3) {
         limparTela();
 
-        printf("=== BATALHA ARCANA ===\n");
-        printf("Boss: %s\n", boss.nome);
-        printf("Descrição: %s\n", boss.descricao);
-        printf("Tentativas restantes: %d\n", tentativas);
-        printf("Progresso: %d / 3 magias eficazes\n\n", acertos);
-
-        printf("1 - Empilhar feitico\n");
-        printf("2 - Conjurar magia\n");
-        printf("3 - Ver pilha\n");
-        printf("4 - Limpar pilha\n");
-        printf("5 - Sair\n");
-        printf("Opcao: ");
+        printf("============== BATALHA ARCANA ==============\n");
+        printf("| Boss: %-34s |\n", boss.nome);
+        printf("| Descricao: %-29s |\n", boss.descricao);
+        printf("| Tentativas restantes: %-18d |\n", tentativas);
+        printf("| Progresso: %-1d / 3 magias eficazes         |\n", acertos);
+        printf("============================================\n");
+        printf("| 1 | Empilhar feitico                     |\n");
+        printf("| 2 | Conjurar magia                       |\n");
+        printf("| 3 | Ver pilha                            |\n");
+        printf("| 4 | Limpar pilha                         |\n");
+        printf("| 5 | Mostrar feiticos                     |\n");
+        printf("| 0 | Sair                                 |\n");
+        printf("============================================\n");
+        printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
 
         switch (opcao) {
             case 1:
-                printf("1-Fogo  2-Agua  3-Ar  4-Terra: ");
+                printf("\nEscolha o feitico:\n");
+                printf("  [1] Fogo   [2] Agua\n");
+                printf("  [3] Ar     [4] Terra\n");
+                printf("Feitico: ");
                 scanf("%d", &tipo);
                 empilhar(&pilha, criarFeitico(tipo));
                 break;
@@ -205,6 +250,12 @@ int main() {
                 break;
 
             case 5:
+                mostrarTabelaMagias();
+                printf("\nPressione ENTER para continuar...");
+                getchar(); getchar();
+                break;
+
+            case 0:
                 return 0;
                 break;
 
