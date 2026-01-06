@@ -2,183 +2,175 @@
 #include <stdlib.h>
 #include <time.h>
 
-
-#define VAZIA      0
-#define INIMIGO    1
-#define TESOURO    2
-#define ARMADILHA  3
-#define LOJA       4
-
+#ifdef _WIN32
+    #define CLEAR "cls"
+#else
+    #define CLEAR "clear"
+#endif
 
 typedef struct Sala {
-    int tipo;
-    int perigo;
+    int tipo;               // 0=vazia, 1=inimigo, 2=tesouro, 3=venda, 4=misteriosa
     struct Sala *esq;
     struct Sala *dir;
-    struct Sala *extra;
 } Sala;
 
+typedef struct {
+    int vida;
+    int moedas;
+    int profundidade;
+} Jogador;
 
-Sala* gerarSala();
-void descreverSala(Sala *sala);
-void explorar(Sala *atual, int *vida, int *ouro);
-void loja(int *vida, int *ouro);
-void mostrarCaminhos(int temExtra);
-void limparTela();
 
 void limparTela() {
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
+    system(CLEAR);
 }
 
-Sala* gerarSala() {
-    Sala *nova = (Sala*) malloc(sizeof(Sala));
-    int chance = rand() % 100;
-
-    if (chance < 30) nova->tipo = VAZIA;
-    else if (chance < 60) nova->tipo = INIMIGO;
-    else if (chance < 80) nova->tipo = TESOURO;
-    else if (chance < 90) nova->tipo = ARMADILHA;
-    else nova->tipo = LOJA;
-
-    nova->perigo = rand() % 10 + 1;
-    nova->esq = nova->dir = nova->extra = NULL;
+Sala* criarSala(int tipo) {
+    Sala* nova = (Sala*) malloc(sizeof(Sala));
+    nova->tipo = tipo;
+    nova->esq = NULL;
+    nova->dir = NULL;
     return nova;
 }
 
-void descreverSala(Sala *sala) {
-    switch (sala->tipo) {
-        case VAZIA:
-            printf("A sala está vazia. O silêncio é desconfortável.\n");
-            break;
-        case INIMIGO:
-            printf("Um inimigo aparece! Ele claramente odeia esse emprego.\n");
-            break;
-        case TESOURO:
-            printf("Você encontra um tesouro esquecido. Finalmente algo bom.\n");
-            break;
-        case ARMADILHA:
-            printf("Uma armadilha ativa! Péssimo dia pra andar distraído.\n");
-            break;
-        case LOJA:
-            printf("Uma lojinha improvisada surge. Capitalismo nunca dorme.\n");
-            break;
+int gerarSalaAleatoria(int profundidade) {
+    int r = rand() % 100;
+
+    if (r < 40 + profundidade * 2) return 1; // inimigo
+    if (r < 55) return 0;                     // vazia
+    if (r < 70) return 2;                     // tesouro
+    if (r < 85) return 4;                     // misteriosa
+    return 3;                                 // venda (rara)
+}
+
+void mostrarStatus(Jogador j) {
+    printf("❤️ Vida: %d | 💰 Moedas: %d | 🏰 Andar: %d\n",
+           j.vida, j.moedas, j.profundidade);
+}
+
+void salaVenda(Jogador *j) {
+    int qtd;
+    printf("\nMercador sombrio aparece...\n");
+    printf("💊 Vida custa 6 moedas por ponto\n");
+    printf("Quantos pontos deseja comprar? ");
+    scanf("%d", &qtd);
+
+    int custo = qtd * 6;
+
+    if (custo <= j->moedas && qtd > 0) {
+        j->moedas -= custo;
+        j->vida += qtd;
+        printf("✅ Compra realizada!\n");
+    } else {
+        printf("❌ O mercador ri da sua pobreza.\n");
     }
 }
 
-void loja(int *vida, int *ouro) {
-    int escolha;
-    printf("\nLOJA\n");
-    printf("❤️ Vida: %d | 💰 Ouro: %d\n", *vida, *ouro);
-    printf("1 - Comprar +20 de vida (30 moedas)\n");
-    printf("2 - Ir embora desconfiado\n");
-    printf("Escolha: ");
-    scanf("%d", &escolha);
+void processarSala(Sala *s, Jogador *j) {
+    int dano, ganho;
 
-    if (escolha == 1 && *ouro >= 30) {
-        *ouro -= 30;
-        *vida += 20;
-        printf("A poção funciona. O gosto não.\n");
-    } else if (escolha == 1) {
-        printf("O vendedor te olha com desprezo.\n");
+    switch (s->tipo) {
+
+        case 0:
+            printf("\n😶 Sala vazia... estranhamente silenciosa.\n");
+            break;
+
+        case 1:
+            dano = (rand() % 6) + 3 + j->profundidade;
+            j->vida -= dano;
+            printf("\n👹 Inimigo surge das sombras!\n");
+            printf("💥 Você perde %d de vida!\n", dano);
+            break;
+
+        case 2:
+            ganho = (rand() % 8) + 4;
+            j->moedas += ganho;
+            printf("\n💰 Você encontra um baú!\n");
+            printf("✨ Ganhou %d moedas!\n", ganho);
+            break;
+
+        case 3:
+            salaVenda(j);
+            break;
+
+        case 4: {
+            int evento = rand() % 2;
+            if (evento == 0) {
+                dano = (rand() % 6) + 2;
+                j->vida -= dano;
+                printf("\n❓ Uma armadilha escondida!\n");
+                printf("💀 Você perde %d de vida!\n", dano);
+            } else {
+                ganho = (rand() % 5) + 3;
+                j->moedas += ganho;
+                printf("\n✨ Um espírito antigo te ajuda!\n");
+                printf("💰 Ganhou %d moedas!\n", ganho);
+            }
+            break;
+        }
     }
 }
 
-void mostrarCaminhos(int temExtra) {
-    const char *esq[] = {
-        "Porta rangendo à esquerda",
-        "Corredor escuro à esquerda",
-        "Escada quebrada à esquerda",
-        "Passagem estreita à esquerda",
-        "Caminho coberto de poeira à esquerda"
-    };
-
-    const char *dir[] = {
-        "Escadaria em espiral à direita",
-        "Porta de pedra à direita",
-        "Corredor largo à direita",
-        "Passagem descendente à direita",
-        "Caminho iluminado à direita"
-    };
-
-    const char *extra[] = {
-        "Passagem secreta atrás da parede",
-        "Alçapão suspeito no chão",
-        "Fenda mal escondida na parede"
-    };
-
-    printf("\nCaminhos disponíveis:");
-    printf("\n1 - %s", esq[rand() % 5]);
-    printf("\n2 - %s", dir[rand() % 5]);
-
-    if (temExtra)
-        printf("\n3 - %s", extra[rand() % 3]);
-}
-
-void explorar(Sala *atual, int *vida, int *ouro) {
-    int escolha;
-
-    while (*vida > 0) {
-        printf("\n---------------------------------\n");
-        descreverSala(atual);
-
-        if (atual->tipo == INIMIGO) {
-            int dano = atual->perigo;
-            *vida -= dano;
-            printf("Você perde %d de vida.\n", dano);
-        }
-        else if (atual->tipo == TESOURO) {
-            int ganho = rand() % 20 + 10;
-            *ouro += ganho;
-            printf("Você ganha %d moedas.\n", ganho);
-        }
-        else if (atual->tipo == ARMADILHA) {
-            int dano = atual->perigo * 2;
-            *vida -= dano;
-            printf("A armadilha causa %d de dano!\n", dano);
-        }
-        else if (atual->tipo == LOJA) {
-            loja(vida, ouro);
-        }
-
-        printf("❤️ Vida: %d | 💰 Ouro: %d\n", *vida, *ouro);
-
-        if (*vida <= 0) {
-            printf("\n💀 Você morreu. A torre segue indiferente.\n");
-            return;
-        }
-
-        if (!atual->esq) atual->esq = gerarSala();
-        if (!atual->dir) atual->dir = gerarSala();
-        if (!atual->extra && rand() % 100 < 25)
-            atual->extra = gerarSala();
-
-        mostrarCaminhos(atual->extra != NULL);
-
-        printf("\nEscolha: ");
-        scanf("%d", &escolha);
-
-        limparTela();  
-        
-        if (escolha == 1) atual = atual->esq;
-        else if (escolha == 2) atual = atual->dir;
-        else if (escolha == 3 && atual->extra) atual = atual->extra;
+Sala* avancarSala(Sala *atual, int escolha, Jogador *j) {
+    if (escolha == 1) {
+        if (!atual->esq)
+            atual->esq = criarSala(gerarSalaAleatoria(j->profundidade));
+        return atual->esq;
+    } else {
+        if (!atual->dir)
+            atual->dir = criarSala(gerarSalaAleatoria(j->profundidade));
+        return atual->dir;
     }
 }
+
+void liberarTorre(Sala *s) {
+    if (!s) return;
+    liberarTorre(s->esq);
+    liberarTorre(s->dir);
+    free(s);
+}
+
+// ---------- FUNÇÃO PRINCIPAL ----------
 
 int main() {
     srand(time(NULL));
 
-    int vida = 100, ouro = 50;
-    Sala *inicio = gerarSala();
+    Jogador jogador = {20, 10, 1};
+    Sala *raiz = criarSala(0);
+    Sala *atual = raiz;
+
+    int escolha;
+
+    while (jogador.vida > 0) {
+        limparTela();
+        mostrarStatus(jogador);
+        processarSala(atual, &jogador);
+
+        if (jogador.vida <= 0) break;
+
+        printf("\nEscolha seu caminho:\n");
+        printf("1 - Passagem sombria à esquerda\n");
+        printf("2 - Escadaria instável à direita\n");
+        printf("\n-> Escolha: ");
+        scanf("%d", &escolha);
+
+        if (escolha != 1 && escolha != 2) {
+            printf("\n❌ Você tropeça na indecisão e perde 1 de vida.\n");
+            jogador.vida--;
+            getchar();
+            getchar();
+            continue;
+        }
+
+        jogador.profundidade++;
+        atual = avancarSala(atual, escolha, &jogador);
+    }
 
     limparTela();
-    printf("🏰 A TORRE ABANDONADA — EXPLORAÇÃO INFINITA\n");
-    printf("Entrar foi sua escolha.\n");
+    printf("\n💀 Você tombou na Torre Abandonada...\n");
+    printf("🏰 Andar alcançado: %d\n", jogador.profundidade);
+    printf("💰 Moedas finais: %d\n", jogador.moedas);
 
-    explorar(inicio, &vida, &ouro);
+    liberarTorre(raiz);
     return 0;
 }
