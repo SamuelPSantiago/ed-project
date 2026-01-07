@@ -44,14 +44,14 @@ int gerarSalaAleatoria(int profundidade) {
 }
 
 void mostrarStatus(Jogador j) {
-    printf("❤️ Vida: %d | 💰 Moedas: %d | 🏰 Andar: %d\n",
+    printf("Vida: %d | Moedas: %d | Andar: %d\n",
            j.vida, j.moedas, j.profundidade);
 }
 
 void salaVenda(Jogador *j) {
     int qtd;
     printf("\nMercador sombrio aparece...\n");
-    printf("💊 Vida custa 6 moedas por ponto\n");
+    printf("Vida custa 6 moedas por ponto\n");
     printf("Quantos pontos deseja comprar? ");
     scanf("%d", &qtd);
 
@@ -60,9 +60,9 @@ void salaVenda(Jogador *j) {
     if (custo <= j->moedas && qtd > 0) {
         j->moedas -= custo;
         j->vida += qtd;
-        printf("✅ Compra realizada!\n");
+        printf("Compra realizada!\n");
     } else {
-        printf("❌ O mercador ri da sua pobreza.\n");
+        printf("O mercador ri da sua pobreza.\n");
     }
 }
 
@@ -72,21 +72,21 @@ void processarSala(Sala *s, Jogador *j) {
     switch (s->tipo) {
 
         case 0:
-            printf("\n😶 Sala vazia... estranhamente silenciosa.\n");
+            printf("\nSala vazia... estranhamente silenciosa.\n");
             break;
 
         case 1:
             dano = (rand() % 6) + 3 + j->profundidade;
             j->vida -= dano;
-            printf("\n👹 Inimigo surge das sombras!\n");
-            printf("💥 Você perde %d de vida!\n", dano);
+            printf("\nInimigo surge das sombras!\n");
+            printf("Voce perde %d de vida!\n", dano);
             break;
 
         case 2:
             ganho = (rand() % 8) + 4;
             j->moedas += ganho;
-            printf("\n💰 Você encontra um baú!\n");
-            printf("✨ Ganhou %d moedas!\n", ganho);
+            printf("\nVoce encontra um bau!\n");
+            printf("Ganhou %d moedas!\n", ganho);
             break;
 
         case 3:
@@ -98,13 +98,13 @@ void processarSala(Sala *s, Jogador *j) {
             if (evento == 0) {
                 dano = (rand() % 6) + 2;
                 j->vida -= dano;
-                printf("\n❓ Uma armadilha escondida!\n");
-                printf("💀 Você perde %d de vida!\n", dano);
+                printf("\nUma armadilha escondida!\n");
+                printf("Voce perde %d de vida!\n", dano);
             } else {
                 ganho = (rand() % 5) + 3;
                 j->moedas += ganho;
-                printf("\n✨ Um espírito antigo te ajuda!\n");
-                printf("💰 Ganhou %d moedas!\n", ganho);
+                printf("\nUm espirito antigo te ajuda!\n");
+                printf("Ganhou %d moedas!\n", ganho);
             }
             break;
         }
@@ -149,13 +149,13 @@ int main() {
         if (jogador.vida <= 0) break;
 
         printf("\nEscolha seu caminho:\n");
-        printf("1 - Passagem sombria à esquerda\n");
-        printf("2 - Escadaria instável à direita\n");
+        printf("1 - Passagem sombria a esquerda\n");
+        printf("2 - Escadaria instavel a direita\n");
         printf("\n-> Escolha: ");
         scanf("%d", &escolha);
 
         if (escolha != 1 && escolha != 2) {
-            printf("\n❌ Você tropeça na indecisão e perde 1 de vida.\n");
+            printf("\nVoce tropeca na indecisao e perde 1 de vida.\n");
             jogador.vida--;
             getchar();
             getchar();
@@ -167,9 +167,9 @@ int main() {
     }
 
     limparTela();
-    printf("\n💀 Você tombou na Torre Abandonada...\n");
-    printf("🏰 Andar alcançado: %d\n", jogador.profundidade);
-    printf("💰 Moedas finais: %d\n", jogador.moedas);
+    printf("\nVoce tombou na Torre Abandonada...\n");
+    printf("Andar alcancado: %d\n", jogador.profundidade);
+    printf("Moedas finais: %d\n", jogador.moedas);
 
     liberarTorre(raiz);
     return 0;
